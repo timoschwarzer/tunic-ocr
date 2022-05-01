@@ -30,6 +30,7 @@ config/name="tunic-ocr"
 run/main_scene="res://Main.tscn"
 boot_splash/image="res://assets/pixel_black.png"
 boot_splash/bg_color=Color( 0, 0, 0, 1 )
+config/icon="res://assets/pixel_black.png"
 
 [autoload]
 
