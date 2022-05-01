@@ -349,7 +349,7 @@ func _on_ShowHideButton_pressed():
 
 
 func _on_DetectModeButton_pressed():
-	detect_mode = wrapi(detect_mode + 1, 0, DetectMode.size() - 1)
+	detect_mode = wrapi(detect_mode + 1, 0, DetectMode.size())
 	detect_mode_button.text = 'OCR Mode: %s' % DETECT_MODE_NAMES[detect_mode]
 
 
