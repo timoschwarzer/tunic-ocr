@@ -1,0 +1,118 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://theme.tres" type="Theme" id=1]
+[ext_resource path="res://Main.gd" type="Script" id=2]
+[ext_resource path="res://assets/pixel_black.png" type="Texture" id=3]
+
+[sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 16.0
+content_margin_right = 16.0
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color( 0, 0, 0, 0.588235 )
+
+[node name="Main" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Background" type="CanvasLayer" parent="."]
+layer = -5
+
+[node name="TextureRect" type="TextureRect" parent="Background"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource( 3 )
+expand = true
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2( 744, 424 )
+current = true
+zoom = Vector2( 1.5, 1.5 )
+
+[node name="Canvas" type="Sprite" parent="."]
+centered = false
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="Control" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource( 1 )
+
+[node name="OpenDialog" type="FileDialog" parent="CanvasLayer/UI"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 32.0
+margin_top = 32.0
+margin_right = -32.0
+margin_bottom = -32.0
+popup_exclusive = true
+window_title = "Open a File"
+resizable = true
+mode = 0
+access = 2
+current_dir = "/home/timo/Code/Repositories/tunic-ocr"
+current_path = "/home/timo/Code/Repositories/tunic-ocr/"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/UI"]
+margin_left = 16.0
+margin_top = 16.0
+
+[node name="OpenButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_right = 90.0
+margin_bottom = 62.0
+text = "Open"
+
+[node name="ShowHideButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_left = 94.0
+margin_right = 306.0
+margin_bottom = 62.0
+text = "Show Translation"
+
+[node name="DetectModeButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_left = 310.0
+margin_right = 513.0
+margin_bottom = 62.0
+text = "OCR Mode: Line"
+
+[node name="ClearButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_left = 517.0
+margin_right = 606.0
+margin_bottom = 62.0
+text = "Clear"
+
+[node name="CalibrateContrastButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_left = 610.0
+margin_right = 836.0
+margin_bottom = 62.0
+text = "Calibrate Contrast"
+
+[node name="ToggleProcessedImageButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_left = 840.0
+margin_right = 1042.0
+margin_bottom = 62.0
+text = "Show Processed"
+
+[node name="ToggleSlowOCRButton" type="Button" parent="CanvasLayer/UI/HBoxContainer"]
+margin_left = 1046.0
+margin_right = 1259.0
+margin_bottom = 62.0
+text = "Enable Slow OCR"
+
+[node name="StatusLabel" type="Label" parent="CanvasLayer/UI"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_bottom = -16.0
+grow_vertical = 0
+custom_styles/normal = SubResource( 1 )
+text = "Ready"
+
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/OpenButton" to="." method="_on_OpenButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/ShowHideButton" to="." method="_on_ShowHideButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/DetectModeButton" to="." method="_on_DetectModeButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/ClearButton" to="." method="_on_ClearButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/CalibrateContrastButton" to="." method="_on_CalibrateContrastButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/ToggleProcessedImageButton" to="." method="_on_ToggleProcessedImageButton_pressed"]
+[connection signal="pressed" from="CanvasLayer/UI/HBoxContainer/ToggleSlowOCRButton" to="." method="_on_ToggleSlowOCRButton_pressed"]

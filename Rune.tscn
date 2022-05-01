@@ -1,0 +1,264 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Rune.gd" type="Script" id=1]
+[ext_resource path="res://RuneLine.gd" type="Script" id=2]
+[ext_resource path="res://fonts/Lato-Regular.ttf" type="DynamicFontData" id=3]
+
+[sub_resource type="DynamicFont" id=1]
+size = 24
+font_data = ExtResource( 3 )
+
+[node name="Rune" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="Special" type="Node2D" parent="."]
+
+[node name="Base" type="Line2D" parent="Special"]
+points = PoolVector2Array( 0, 0, 60, 0 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Special/Base"]
+position = Vector2( 16, 0 )
+
+[node name="Detector2" type="Position2D" parent="Special/Base"]
+position = Vector2( 46, 0 )
+
+[node name="Swap" type="Line2D" parent="Special"]
+points = PoolVector2Array( 30, 56, 38, 64, 30, 72, 22, 64, 30, 56 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Special/Swap"]
+position = Vector2( 24, 64 )
+
+[node name="Detector2" type="Position2D" parent="Special/Swap"]
+position = Vector2( 36, 64 )
+
+[node name="Detector3" type="Position2D" parent="Special/Swap"]
+position = Vector2( 30, 70 )
+
+[node name="Consonants" type="Node2D" parent="."]
+
+[node name="Center" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 30, -18, 30, 0 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/Center"]
+position = Vector2( 30, -8 )
+
+[node name="TCenter" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 30, -18, 30, -50 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/TCenter"]
+position = Vector2( 30, -34 )
+
+[node name="BCenter" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 30, 22, 30, 54 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/BCenter"]
+position = Vector2( 30, 38 )
+
+[node name="TLInner" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 0, -34, 30, -18 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/TLInner"]
+position = Vector2( 16, -26 )
+
+[node name="TRInner" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 60, -34, 30, -18 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/TRInner"]
+position = Vector2( 44, -26 )
+
+[node name="BLInner" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 0, 38, 30, 22 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/BLInner"]
+position = Vector2( 18, 28 )
+
+[node name="BRInner" type="Line2D" parent="Consonants"]
+points = PoolVector2Array( 60, 38, 30, 22 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Consonants/BRInner"]
+position = Vector2( 42, 28 )
+
+[node name="Vowels" type="Node2D" parent="."]
+
+[node name="Left" type="Line2D" parent="Vowels"]
+points = PoolVector2Array( 0, -34, 0, 38 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Vowels/Left"]
+position = Vector2( 0, -16 )
+
+[node name="Detector2" type="Position2D" parent="Vowels/Left"]
+position = Vector2( 0, 28 )
+
+[node name="TLOuter" type="Line2D" parent="Vowels"]
+points = PoolVector2Array( 0, -34, 30, -50 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Vowels/TLOuter"]
+position = Vector2( 14, -42 )
+
+[node name="TROuter" type="Line2D" parent="Vowels"]
+points = PoolVector2Array( 30, -50, 60, -34 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Vowels/TROuter"]
+position = Vector2( 46, -42 )
+
+[node name="BLOuter" type="Line2D" parent="Vowels"]
+points = PoolVector2Array( 30, 54, 0, 38 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Vowels/BLOuter"]
+position = Vector2( 16, 46 )
+
+[node name="BROuter" type="Line2D" parent="Vowels"]
+points = PoolVector2Array( 30, 54, 60, 38 )
+width = 5.0
+default_color = Color( 1, 0, 0, 0.1 )
+script = ExtResource( 2 )
+
+[node name="Detector1" type="Position2D" parent="Vowels/BROuter"]
+position = Vector2( 44, 46 )
+
+[node name="InvalidPoints" type="Node2D" parent="."]
+
+[node name="Invalid1" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 10, -12 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid2" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 20, -12 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid3" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 46, -12 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid4" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 46, -12 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid5" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 16, 10 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid6" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 30, 10 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid7" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 46, 10 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid8" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 18, 38 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid9" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 42, 38 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid10" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 20, -34 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid11" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 40, -34 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid12" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 16, -12 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid13" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 42, -12 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid14" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 10, 20 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Invalid15" type="Position2D" parent="InvalidPoints"]
+position = Vector2( 52, 20 )
+__meta__ = {
+"_gizmo_extents_": 5.0
+}
+
+[node name="Overlay" type="Polygon2D" parent="."]
+visible = false
+z_index = 2
+polygon = PoolVector2Array( 30, -50, 60, -34, 60, 38, 30, 54, 0, 38, 0, -34 )
+
+[node name="ZSet" type="Node2D" parent="Overlay"]
+z_index = 2
+
+[node name="Label" type="Label" parent="Overlay/ZSet"]
+margin_top = -18.0
+margin_right = 60.0
+margin_bottom = 16.0
+custom_colors/font_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 1 )
+align = 1

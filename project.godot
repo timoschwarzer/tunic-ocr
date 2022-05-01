@@ -1,0 +1,54 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Line2D",
+"class": "RuneLine",
+"language": "GDScript",
+"path": "res://RuneLine.gd"
+}, {
+"base": "Node",
+"class": "Runes",
+"language": "GDScript",
+"path": "res://Runes.gd"
+} ]
+_global_script_class_icons={
+"RuneLine": "",
+"Runes": ""
+}
+
+[application]
+
+config/name="tunic-ocr"
+run/main_scene="res://Main.tscn"
+boot_splash/image="res://assets/pixel_black.png"
+boot_splash/bg_color=Color( 0, 0, 0, 1 )
+
+[autoload]
+
+ImgUtil="*res://ImgUtil.gd"
+
+[display]
+
+window/size/width=1400
+window/size/height=800
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom="res://theme.tres"
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"
