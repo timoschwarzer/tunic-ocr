@@ -14,6 +14,7 @@ onready var label = $Overlay/ZSet/Label
 
 var lines: Array
 var parse_result: Runes.RuneParseResult = null
+var parse_hash: String = ''
 
 
 func _ready():
@@ -36,6 +37,9 @@ func detect(img: Image):
 			line.detect(img)
 	
 	parse_result = Runes.parse(detected_lines())
+	parse_hash = ''
+	for line in lines:
+		parse_hash += '1' if line.status == RuneLine.Status.DETECTED else '0'
 
 
 func show_parse_result():

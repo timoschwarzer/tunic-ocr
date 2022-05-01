@@ -414,6 +414,7 @@ static func parse(line_names):
     var consonant_lines = []
     var vowel_lines = []
     var swap = false
+    var has_base = false
 
     for line in line_names:
         if line in CONSONANT_LINES:
@@ -422,6 +423,11 @@ static func parse(line_names):
             vowel_lines.append(line)
         elif line == 'Swap':
             swap = true
+        elif line == 'Base':
+            has_base = true
+        
+    if !has_base:
+        return null
     
     var result = RuneParseResult.new()
 

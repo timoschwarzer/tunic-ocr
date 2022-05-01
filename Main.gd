@@ -197,8 +197,15 @@ func detect_runes_in_line():
 	var last_rune_line_offset = 0
 	var last_idle_frame = OS.get_ticks_msec()
 
+	var corrected_rune_base_pos = rune_base_pos
+	for x_offset in [0, -1, 1, -2, 2, -3, 3, -4, 4]:
+		for y_offset in [0, -1, 1, -2, 2, -3, 3, -4, 4]:
+			if ImgUtil.get_value_at(image, rune_base_pos + Vector2(x_offset, y_offset)) < 0.5:
+				corrected_rune_base_pos = rune_base_pos + Vector2(x_offset, y_offset)
+				break
+
 	while line_offset + rune_base_pos.x < image.get_width():
-		var pos = rune_base_pos + Vector2(line_offset, 0)
+		var pos = corrected_rune_base_pos + Vector2(line_offset, 0)
 		dot.global_position = pos
 
 		var rune_does_not_fit = false
@@ -220,13 +227,10 @@ func detect_runes_in_line():
 		add_child(rune)
 		rune.detect(image)
 
-		var optimal_x_offset = 0
-		var optimal_y_offset = 0
-		var optimal_scale_multiplier = 1.0
-		var optimal_count = 0
-		for abs_scale_multiplier in [1.0, 1.01, 1.02, 1.03]:
+		var detection_votes = {}
+		for abs_scale_multiplier in [1.0, 1.02, 1.04, 1.06, 1.08]:
 			for scale_multiplier in [1.0 / abs_scale_multiplier, abs_scale_multiplier]:
-				for abs_x_offset in range(0, rune_width * 0.5, rune_width * 0.1):
+				for abs_x_offset in range(0, rune_width * 0.4, rune_width * 0.1):
 					for x_offset in [-abs_x_offset, abs_x_offset]:
 						for abs_y_offset in [0, 1]:
 							for y_offset in [-abs_y_offset, abs_y_offset]:
@@ -236,12 +240,16 @@ func detect_runes_in_line():
 								rune.detect(image)
 
 								if rune.parse_result != null:
-									var line_count = rune.detected_line_count()
-									if line_count > optimal_count:
-										optimal_x_offset = x_offset - (rune_width * scale_multiplier * 0.5 - rune_width * 0.5)
-										optimal_y_offset = y_offset
-										optimal_scale_multiplier = scale_multiplier
-										optimal_count = line_count
+									if rune.parse_hash in detection_votes:
+										detection_votes[rune.parse_hash].votes += 1
+									else:
+										detection_votes[rune.parse_hash] = {
+											x_offset = x_offset - (rune_width * scale_multiplier * 0.5 - rune_width * 0.5),
+											y_offset = y_offset,
+											scale_multiplier = scale_multiplier,
+											line_count = rune.detected_line_count(),
+											votes = 1,
+										}
 								
 								if slow_ocr:
 									yield(get_tree(), 'idle_frame')
@@ -250,8 +258,23 @@ func detect_runes_in_line():
 									yield(get_tree(), 'idle_frame')
 		yield(get_tree(), 'idle_frame')
 		
-		rune.global_position = pos + Vector2(optimal_x_offset, optimal_y_offset)
-		var scale = rune_scale * optimal_scale_multiplier
+		var best_vote = null
+		for parse_hash in detection_votes.keys():
+			if best_vote == null || (
+				best_vote.line_count < detection_votes[parse_hash].line_count &&
+				best_vote.votes < detection_votes[parse_hash].votes * 2.0
+			) || (
+				best_vote.votes < detection_votes[parse_hash].votes
+			):
+				best_vote = detection_votes[parse_hash]
+
+		if best_vote == null:
+			rune.queue_free()
+			line_offset += rune_width * 0.5
+			continue
+
+		rune.global_position = pos + Vector2(best_vote.x_offset, best_vote.y_offset)
+		var scale = rune_scale * best_vote.scale_multiplier
 		rune.scale = Vector2(scale, scale)
 		rune.detect(image)
 		
@@ -268,8 +291,11 @@ func detect_runes_in_line():
 			if detect_mode == DetectMode.RUNE:
 				break
 
-		line_offset += rune_width * optimal_scale_multiplier + optimal_x_offset
-		rune_width = rune_width * optimal_scale_multiplier
+		line_offset += rune_width * best_vote.scale_multiplier + best_vote.x_offset
+		rune_width = rune_width * best_vote.scale_multiplier
+
+		if line_offset - last_rune_line_offset > rune_width * 4:
+			break
 
 	yield(get_tree(), 'idle_frame')
 	image.unlock()
@@ -356,8 +382,6 @@ func _on_DetectModeButton_pressed():
 func _on_ClearButton_pressed():
 	free_and_clear(runes)
 	free_and_clear(dots)
-	rune_base_pos = null
-	rune_bottom_pos = null
 
 
 func _on_CalibrateContrastButton_pressed():
