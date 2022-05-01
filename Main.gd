@@ -52,6 +52,7 @@ onready var status_label = $CanvasLayer/UI/StatusLabel
 onready var toggle_processed_image_button = $CanvasLayer/UI/HBoxContainer/ToggleProcessedImageButton
 onready var toggle_slow_ocr_button = $CanvasLayer/UI/HBoxContainer/ToggleSlowOCRButton
 onready var detect_mode_button = $CanvasLayer/UI/HBoxContainer/DetectModeButton
+onready var overlay_rect = $Overlay/OverlayRect
 
 
 var runes = []
@@ -102,6 +103,9 @@ func set_status_text_override(value, time = 2.0):
 
 func set_state(value):
 	state = value
+
+	overlay_rect.visible = state == State.PROCESSING_IMAGE
+
 	if status_text_override_timeout <= 0:
 		update_status_label()
 
@@ -133,9 +137,12 @@ func _unhandled_input(event):
 					set_state(State.SELECT_BOUND)
 				elif state == State.SELECT_BOUND:
 					rune_bottom_pos = get_local_mouse_position()
-					var standard_distance = Vector2(RUNE_WIDTH / 2.0, RUNE_HEIGHT / 2.0).length()
-					rune_scale = (rune_bottom_pos - rune_base_pos).length() / standard_distance
-					yield(detect_runes_in_line(), 'completed')
+
+					if rune_bottom_pos != rune_base_pos:
+						var standard_distance = Vector2(RUNE_WIDTH / 2.0, RUNE_HEIGHT / 2.0).length()
+						rune_scale = (rune_bottom_pos - rune_base_pos).length() / standard_distance
+						yield(detect_runes_in_line(), 'completed')
+						
 					rune_base_pos = null
 					rune_bottom_pos = null
 					free_and_clear(dots)
@@ -160,10 +167,10 @@ func _unhandled_input(event):
 					yield(get_tree(), 'idle_frame')
 					set_state(State.SELECT_BASELINE_START)
 			get_tree().set_input_as_handled()
-		elif event.button_index == BUTTON_WHEEL_UP:
+		elif event.button_index == BUTTON_WHEEL_DOWN:
 			camera.zoom *= 1.03
 			get_tree().set_input_as_handled()
-		elif event.button_index == BUTTON_WHEEL_DOWN:
+		elif event.button_index == BUTTON_WHEEL_UP:
 			camera.zoom /= 1.03
 			get_tree().set_input_as_handled()
 	elif event is InputEventMouseMotion:
@@ -180,72 +187,80 @@ func _unhandled_input(event):
 func detect_runes_in_line():
 	set_state(State.DETECTING_RUNES)
 
-	var x_offset = 0
+	var line_offset = 0
 	var rune_width = RUNE_WIDTH * rune_scale
 	var dot = Dot.instance()
 	add_child(dot)
 
 	image.lock()
 
-	var last_rune_x_offset = 0
-	while x_offset + rune_base_pos.x < image.get_width():
-		var pos = rune_base_pos + Vector2(x_offset, 0)
+	var last_rune_line_offset = 0
+	var last_idle_frame = OS.get_ticks_msec()
+
+	while line_offset + rune_base_pos.x < image.get_width():
+		var pos = rune_base_pos + Vector2(line_offset, 0)
 		dot.global_position = pos
 
 		var rune_does_not_fit = false
 		for detect_offset in range(rune_width * 0.7):
 			if ImgUtil.get_value_at(image, pos + Vector2(detect_offset, 0)) > 0.5:
-				x_offset += detect_offset + 1
+				line_offset += detect_offset + 1
 				rune_does_not_fit = true
 				break
 
 		if rune_does_not_fit:
-			if x_offset - last_rune_x_offset > rune_width * 4 || detect_mode == DetectMode.WORD:
+			if line_offset - last_rune_line_offset > rune_width * 4 || detect_mode == DetectMode.WORD:
+				print('Rune does not fit')
 				break
 			else:
 				continue
 		
-		var x_correct_offset = 0
-
 		var rune = make_rune()
 		rune.global_position = pos
 		add_child(rune)
 		rune.detect(image)
 
-		var optimal_offset = 0
+		var optimal_x_offset = 0
+		var optimal_y_offset = 0
 		var optimal_scale_multiplier = 1.0
 		var optimal_count = 0
-		for abs_offset in range(1, rune_width * 0.2):
-			for offset in [-abs_offset, abs_offset]:
-				rune.global_position = pos + Vector2(offset, 0)
-				
-				for abs_scale_multiplier in [1.02, 1.04, 1.06, 1.08, 1.1]:
-					for scale_multiplier in [abs_scale_multiplier, 1.0 / abs_scale_multiplier]:
-						var scale = rune_scale * scale_multiplier
-						rune.scale = Vector2(scale, scale)
-						rune.detect(image)
+		for abs_scale_multiplier in [1.0, 1.01, 1.02, 1.03]:
+			for scale_multiplier in [1.0 / abs_scale_multiplier, abs_scale_multiplier]:
+				for abs_x_offset in range(0, rune_width * 0.5, rune_width * 0.1):
+					for x_offset in [-abs_x_offset, abs_x_offset]:
+						for abs_y_offset in [0, 1]:
+							for y_offset in [-abs_y_offset, abs_y_offset]:
+								var scale = rune_scale * scale_multiplier
+								rune.global_position = pos + Vector2(x_offset, y_offset) - Vector2(rune_width * scale_multiplier * 0.5 - rune_width * 0.5, 0)
+								rune.scale = Vector2(scale, scale)
+								rune.detect(image)
 
-						var line_count = rune.detected_line_count()
-						if line_count > optimal_count && rune.parse_result != null:
-							optimal_offset = offset
-							optimal_scale_multiplier = scale_multiplier
-							optimal_count = line_count
-						
-						if slow_ocr:
-							yield(get_tree(), 'idle_frame')
+								if rune.parse_result != null:
+									var line_count = rune.detected_line_count()
+									if line_count > optimal_count:
+										optimal_x_offset = x_offset - (rune_width * scale_multiplier * 0.5 - rune_width * 0.5)
+										optimal_y_offset = y_offset
+										optimal_scale_multiplier = scale_multiplier
+										optimal_count = line_count
+								
+								if slow_ocr:
+									yield(get_tree(), 'idle_frame')
+								elif OS.get_ticks_msec() - last_idle_frame > 100:
+									last_idle_frame = OS.get_ticks_msec()
+									yield(get_tree(), 'idle_frame')
 		yield(get_tree(), 'idle_frame')
 		
-		x_correct_offset = optimal_offset
-		rune.global_position = pos + Vector2(optimal_offset, 0)
+		rune.global_position = pos + Vector2(optimal_x_offset, optimal_y_offset)
 		var scale = rune_scale * optimal_scale_multiplier
 		rune.scale = Vector2(scale, scale)
 		rune.detect(image)
 		
-		if !rune.is_valid_rune():
+		if rune.parse_result == null:
 			rune.queue_free()
 		else:
 			runes.append(rune)
-			last_rune_x_offset = x_offset
+			rune.connect('delete', self, 'delete_rune', [rune])
+			last_rune_line_offset = line_offset
 		
 			if show_translation:
 				rune.show_parse_result()
@@ -253,7 +268,8 @@ func detect_runes_in_line():
 			if detect_mode == DetectMode.RUNE:
 				break
 
-		x_offset += rune_width + x_correct_offset
+		line_offset += rune_width * optimal_scale_multiplier + optimal_x_offset
+		rune_width = rune_width * optimal_scale_multiplier
 
 	yield(get_tree(), 'idle_frame')
 	image.unlock()
@@ -306,6 +322,11 @@ func update_canvas():
 	canvas.texture = ImgUtil.texture_from(image if display_processed_image else original_image)
 
 
+func delete_rune(rune):
+	runes.erase(rune)
+	rune.queue_free()
+
+
 func _on_ParseButton_pressed():
 	for rune in runes:
 		rune.show_parse_result()
@@ -328,7 +349,7 @@ func _on_ShowHideButton_pressed():
 
 
 func _on_DetectModeButton_pressed():
-	detect_mode = wrapi(detect_mode + 1, 0, DetectMode.size())
+	detect_mode = wrapi(detect_mode + 1, 0, DetectMode.size() - 1)
 	detect_mode_button.text = 'OCR Mode: %s' % DETECT_MODE_NAMES[detect_mode]
 
 

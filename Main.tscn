@@ -32,7 +32,19 @@ zoom = Vector2( 1.5, 1.5 )
 [node name="Canvas" type="Sprite" parent="."]
 centered = false
 
+[node name="Overlay" type="CanvasLayer" parent="."]
+
+[node name="OverlayRect" type="TextureRect" parent="Overlay"]
+visible = false
+modulate = Color( 1, 1, 1, 0.498039 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource( 3 )
+expand = true
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 2
 
 [node name="UI" type="Control" parent="CanvasLayer"]
 anchor_right = 1.0

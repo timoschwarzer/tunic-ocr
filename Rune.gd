@@ -1,4 +1,7 @@
-extends Node2D
+extends StaticBody2D
+
+
+signal delete
 
 
 onready var special_lines = $Special.get_children()
@@ -60,6 +63,6 @@ func any_line_detected(set = lines):
 	return detected_line_count(set) > 0
 
 
-func is_valid_rune():
-	# TODO
-	return any_line_detected()
+func _on_Rune_input_event(viewport, event, shape_idx):
+	if event is InputEventMouseButton && event.button_index == BUTTON_RIGHT && event.pressed:
+		emit_signal('delete')
